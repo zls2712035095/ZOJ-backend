@@ -7,9 +7,6 @@ import lombok.EqualsAndHashCode;
 
 /**
  * 用户查询请求
- *
- * @author <a href="https://github.com/lizack">程序员鱼皮</a>
- * @from <a href="https://zack.icu">编程导航知识星球</a>
  */
 @EqualsAndHashCode(callSuper = true)
 @Data

@@ -10,9 +10,6 @@ import org.springframework.beans.BeanUtils;
 
 /**
  * 帖子视图
- *
- * @author <a href="https://github.com/lizack">程序员鱼皮</a>
- * @from <a href="https://zack.icu">编程导航知识星球</a>
  */
 @Data
 public class PostVO implements Serializable {

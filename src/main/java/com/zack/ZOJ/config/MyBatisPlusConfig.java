@@ -10,8 +10,7 @@ import org.springframework.context.annotation.Configuration;
 /**
  * MyBatis Plus 配置
  *
- * @author https://github.com/lizack
- */
+ * @author https://github.com/lizack */
 @Configuration
 @MapperScan("com.zack.ZOJ.mapper")
 public class MyBatisPlusConfig {

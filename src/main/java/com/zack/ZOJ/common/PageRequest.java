@@ -4,11 +4,7 @@ import com.zack.ZOJ.constant.CommonConstant;
 import lombok.Data;
 
 /**
- * 分页请求
- *
- * @author <a href="https://github.com/lizack">程序员鱼皮</a>
- * @from <a href="https://zack.icu">编程导航知识星球</a>
- */
+ * 分页请求 */
 @Data
 public class PageRequest {
 
