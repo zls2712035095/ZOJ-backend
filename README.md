@@ -70,7 +70,7 @@
 
 ## 快速上手
 
-> 所有需要修改的地方鱼皮都标记了 `todo`，便于大家找到修改的位置~
+> 所有需要修改的地方都标记了 `todo`
 
 ### MySQL 数据库
 
@@ -87,7 +87,7 @@ spring:
 
 2）执行 `sql/create_table.sql` 中的数据库语句，自动创建库表
 
-3）启动项目，访问 `http://localhost:8101/api/doc.html` 即可打开接口文档，不需要写前端就能在线调试接口了~
+3）启动项目，访问 `http://localhost:8081/api/doc.html` 即可打开接口文档，不需要写前端就能在线调试接口了~
 
 ![](doc/swagger.png)
 
