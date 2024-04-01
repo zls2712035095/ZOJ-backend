@@ -10,6 +10,7 @@ import com.zack.ZOJ.model.entity.QuestionSubmit;
 import com.zack.ZOJ.model.entity.User;
 import com.zack.ZOJ.model.enums.JudgeResultEnum;
 import com.zack.ZOJ.model.enums.QuestionSubmitEnum;
+import com.zack.ZOJ.model.enums.QuestionSubmitLanguageEnum;
 import com.zack.ZOJ.service.QuestionService;
 import com.zack.ZOJ.service.QuestionSubmitService;
 import com.zack.ZOJ.mapper.QuestionSubmitMapper;
@@ -41,7 +42,7 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
     public long doQuestionSubmit(QuestionSubmitAddRequest questionSubmitAddRequest, User loginUser) {
         // todo 语言是否合法
         String language = questionSubmitAddRequest.getLanguage();
-        JudgeResultEnum judgeResultEnum = JudgeResultEnum.getEnumByValue(language);
+        QuestionSubmitLanguageEnum judgeResultEnum = QuestionSubmitLanguageEnum.getEnumByValue(language);
         if (judgeResultEnum == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "编程语言错误");
         }
