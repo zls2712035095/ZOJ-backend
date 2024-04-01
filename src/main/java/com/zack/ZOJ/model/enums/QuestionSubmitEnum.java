@@ -14,9 +14,9 @@ public enum QuestionSubmitEnum {
 
     // 0 - 带判题、1 - 判题中、 2 - 成功、 3 - 失败
     WATITING("等待中", 0),
-    RUNNING("运行中", 0),
-    SUCCEED("成功", 0),
-    FAILED("失败", 0);
+    RUNNING("运行中", 1),
+    SUCCEED("成功", 2),
+    FAILED("失败", 3);
 
     private final String text;
 
