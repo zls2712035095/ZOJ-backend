@@ -1,7 +1,9 @@
 package com.zack.ZOJ.controller;
 
+import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.gson.Gson;
 import com.zack.ZOJ.annotation.AuthCheck;
 import com.zack.ZOJ.common.BaseResponse;
 import com.zack.ZOJ.common.DeleteRequest;
@@ -10,10 +12,7 @@ import com.zack.ZOJ.common.ResultUtils;
 import com.zack.ZOJ.constant.UserConstant;
 import com.zack.ZOJ.exception.BusinessException;
 import com.zack.ZOJ.exception.ThrowUtils;
-import com.zack.ZOJ.model.dto.question.QuestionAddRequest;
-import com.zack.ZOJ.model.dto.question.QuestionEditRequest;
-import com.zack.ZOJ.model.dto.question.QuestionQueryRequest;
-import com.zack.ZOJ.model.dto.question.QuestionUpdateRequest;
+import com.zack.ZOJ.model.dto.question.*;
 import com.zack.ZOJ.model.entity.Question;
 import com.zack.ZOJ.model.entity.User;
 import com.zack.ZOJ.model.vo.QuestionVO;
@@ -60,6 +59,14 @@ public class QuestionController {
         List<String> tags = questionAddRequest.getTags();
         if (tags != null) {
             question.setTags(JSONUtil.toJsonStr(tags));
+        }
+        List<JudgeCase> judgeCases = questionAddRequest.getJudgeCase();
+        if (judgeCases != null) {
+            question.setJudgeCase(JSONUtil.toJsonStr(judgeCases));
+        }
+        JudgeConfig judgeConfig = questionAddRequest.getJudgeConfig();
+        if (judgeConfig != null) {
+            question.setJudgeConfig(JSONUtil.toJsonStr(judgeConfig));
         }
         questionService.validQuestion(question, true);
         User loginUser = userService.getLoginUser(request);
@@ -114,6 +121,14 @@ public class QuestionController {
         List<String> tags = questionUpdateRequest.getTags();
         if (tags != null) {
             question.setTags(JSONUtil.toJsonStr(tags));
+        }
+        List<JudgeCase> judgeCases = questionUpdateRequest.getJudgeCase();
+        if (judgeCases != null) {
+            question.setJudgeCase(JSONUtil.toJsonStr(judgeCases));
+        }
+        JudgeConfig judgeConfig = questionUpdateRequest.getJudgeConfig();
+        if (judgeConfig != null) {
+            question.setJudgeConfig(JSONUtil.toJsonStr(judgeConfig));
         }
         // 参数校验
         questionService.validQuestion(question, false);
@@ -239,6 +254,15 @@ public class QuestionController {
         if (tags != null) {
             question.setTags(JSONUtil.toJsonStr(tags));
         }
+        List<JudgeCase> judgeCases = questionEditRequest.getJudgeCase();
+        if (judgeCases != null) {
+            question.setJudgeCase(JSONUtil.toJsonStr(judgeCases));
+        }
+        JudgeConfig judgeConfig = questionEditRequest.getJudgeConfig();
+        if (judgeConfig != null) {
+            question.setJudgeConfig(JSONUtil.toJsonStr(judgeConfig));
+        }
+
         // 参数校验
         questionService.validQuestion(question, false);
         User loginUser = userService.getLoginUser(request);
