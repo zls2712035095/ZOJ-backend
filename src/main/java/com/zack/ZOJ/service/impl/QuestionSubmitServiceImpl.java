@@ -16,6 +16,7 @@ import com.zack.ZOJ.model.entity.User;
 import com.zack.ZOJ.model.enums.QuestionSubmitEnum;
 import com.zack.ZOJ.model.enums.QuestionSubmitLanguageEnum;
 import com.zack.ZOJ.model.dto.questionsubmit.QuestionSubmitQueryRequest;
+import com.zack.ZOJ.model.enums.UserRoleEnum;
 import com.zack.ZOJ.model.vo.QuestionSubmitVO;
 import com.zack.ZOJ.model.vo.UserVO;
 import com.zack.ZOJ.service.QuestionService;
@@ -129,81 +130,33 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
     }
 
     @Override
-    public QuestionSubmitVO getQuestionSubmitVO(QuestionSubmit questionSubmit, HttpServletRequest request) {
+    public QuestionSubmitVO getQuestionSubmitVO(QuestionSubmit questionSubmit, User loginUSer) {
         QuestionSubmitVO questionSubmitVO = QuestionSubmitVO.objToVo(questionSubmit);
-        long questionSubmitId = questionSubmit.getId();
         // 1. 关联查询用户信息
-        Long userId = questionSubmit.getUserId();
+        long userId = loginUSer.getId();
         User user = null;
-        if (userId != null && userId > 0) {
+        if (userId > 0) {
             user = userService.getById(userId);
         }
         UserVO userVO = userService.getUserVO(user);
         questionSubmitVO.setUserVO(userVO);
-        // todo 实现点赞收藏等
-//        // 2. 已登录，获取用户点赞、收藏状态
-//        User loginUser = userService.getLoginUserPermitNull(request);
-//        if (loginUser != null) {
-//            // 获取点赞
-//            QueryWrapper<QuestionSubmitThumb> questionSubmitThumbQueryWrapper = new QueryWrapper<>();
-//            questionSubmitThumbQueryWrapper.in("questionSubmitId", questionSubmitId);
-//            questionSubmitThumbQueryWrapper.eq("userId", loginUser.getId());
-//            QuestionSubmitThumb questionSubmitThumb = questionSubmitThumbMapper.selectOne(questionSubmitThumbQueryWrapper);
-//            questionSubmitVO.setHasThumb(questionSubmitThumb != null);
-//            // 获取收藏
-//            QueryWrapper<QuestionSubmitFavour> questionSubmitFavourQueryWrapper = new QueryWrapper<>();
-//            questionSubmitFavourQueryWrapper.in("questionSubmitId", questionSubmitId);
-//            questionSubmitFavourQueryWrapper.eq("userId", loginUser.getId());
-//            QuestionSubmitFavour questionSubmitFavour = questionSubmitFavourMapper.selectOne(questionSubmitFavourQueryWrapper);
-//            questionSubmitVO.setHasFavour(questionSubmitFavour != null);
-//        }
+
+        if(userId != questionSubmitVO.getUserId() && !userService.isAdmin(loginUSer)) {
+            questionSubmitVO.setCode(null);
+        }
         return questionSubmitVO;
     }
 
     @Override
-    public Page<QuestionSubmitVO> getQuestionSubmitVOPage(Page<QuestionSubmit> questionSubmitPage, HttpServletRequest request) {
+    public Page<QuestionSubmitVO> getQuestionSubmitVOPage(Page<QuestionSubmit> questionSubmitPage, User loginUSer) {
         List<QuestionSubmit> questionSubmitList = questionSubmitPage.getRecords();
         Page<QuestionSubmitVO> questionSubmitVOPage = new Page<>(questionSubmitPage.getCurrent(), questionSubmitPage.getSize(), questionSubmitPage.getTotal());
         if (CollUtil.isEmpty(questionSubmitList)) {
             return questionSubmitVOPage;
         }
-        // 1. 关联查询用户信息
-        Set<Long> userIdSet = questionSubmitList.stream().map(QuestionSubmit::getUserId).collect(Collectors.toSet());
-        Map<Long, List<User>> userIdUserListMap = userService.listByIds(userIdSet).stream()
-                .collect(Collectors.groupingBy(User::getId));
-//        // 2. 已登录，获取用户点赞、收藏状态
-//        Map<Long, Boolean> questionSubmitIdHasThumbMap = new HashMap<>();
-//        Map<Long, Boolean> questionSubmitIdHasFavourMap = new HashMap<>();
-//        User loginUser = userService.getLoginUserPermitNull(request);
-//        if (loginUser != null) {
-//            Set<Long> questionSubmitIdSet = questionSubmitList.stream().map(QuestionSubmit::getId).collect(Collectors.toSet());
-//            loginUser = userService.getLoginUser(request);
-//            // 获取点赞
-//            QueryWrapper<QuestionSubmitThumb> questionSubmitThumbQueryWrapper = new QueryWrapper<>();
-//            questionSubmitThumbQueryWrapper.in("questionSubmitId", questionSubmitIdSet);
-//            questionSubmitThumbQueryWrapper.eq("userId", loginUser.getId());
-//            List<QuestionSubmitThumb> questionSubmitQuestionSubmitThumbList = questionSubmitThumbMapper.selectList(questionSubmitThumbQueryWrapper);
-//            questionSubmitQuestionSubmitThumbList.forEach(questionSubmitQuestionSubmitThumb -> questionSubmitIdHasThumbMap.put(questionSubmitQuestionSubmitThumb.getQuestionSubmitId(), true));
-//            // 获取收藏
-//            QueryWrapper<QuestionSubmitFavour> questionSubmitFavourQueryWrapper = new QueryWrapper<>();
-//            questionSubmitFavourQueryWrapper.in("questionSubmitId", questionSubmitIdSet);
-//            questionSubmitFavourQueryWrapper.eq("userId", loginUser.getId());
-//            List<QuestionSubmitFavour> questionSubmitFavourList = questionSubmitFavourMapper.selectList(questionSubmitFavourQueryWrapper);
-//            questionSubmitFavourList.forEach(questionSubmitFavour -> questionSubmitIdHasFavourMap.put(questionSubmitFavour.getQuestionSubmitId(), true));
-//        }
-        // 填充信息
-        List<QuestionSubmitVO> questionSubmitVOList = questionSubmitList.stream().map(questionSubmit -> {
-            QuestionSubmitVO questionSubmitVO = QuestionSubmitVO.objToVo(questionSubmit);
-            Long userId = questionSubmit.getUserId();
-            User user = null;
-            if (userIdUserListMap.containsKey(userId)) {
-                user = userIdUserListMap.get(userId).get(0);
-            }
-            questionSubmitVO.setUserVO(userService.getUserVO(user));
-//            questionSubmitVO.setHasThumb(questionSubmitIdHasThumbMap.getOrDefault(questionSubmit.getId(), false));
-//            questionSubmitVO.setHasFavour(questionSubmitIdHasFavourMap.getOrDefault(questionSubmit.getId(), false));
-            return questionSubmitVO;
-        }).collect(Collectors.toList());
+
+        List<QuestionSubmitVO> questionSubmitVOList = questionSubmitList.stream().map(questionSubmit -> getQuestionSubmitVO(questionSubmit, loginUSer)).collect(Collectors.toList());
+
         questionSubmitVOPage.setRecords(questionSubmitVOList);
         return questionSubmitVOPage;
     }

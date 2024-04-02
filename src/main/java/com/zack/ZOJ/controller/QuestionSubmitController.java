@@ -62,7 +62,8 @@ public class QuestionSubmitController {
         long size = questionSubmitQueryRequest.getPageSize();
 
         Page<QuestionSubmit> questionSubmitPage = questionSubmitService.page(new Page<>(current, size), questionSubmitService.getQueryWrapper(questionSubmitQueryRequest));
-        return ResultUtils.success(questionSubmitService.getQuestionSubmitVOPage(questionSubmitPage, request));
+        final User loginUser = userService.getLoginUser(request);
+        return ResultUtils.success(questionSubmitService.getQuestionSubmitVOPage(questionSubmitPage, loginUser));
     }
 
 }
