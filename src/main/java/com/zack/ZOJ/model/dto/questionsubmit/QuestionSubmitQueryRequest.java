@@ -21,7 +21,7 @@ public class QuestionSubmitQueryRequest extends PageRequest implements Serializa
     /**
      * 提交状态
      */
-    private Integer status = 0;
+    private Integer status;
 
     /**
      * 题目 id
