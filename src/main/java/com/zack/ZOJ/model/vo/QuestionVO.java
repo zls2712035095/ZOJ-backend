@@ -42,9 +42,14 @@ public class QuestionVO implements Serializable {
     private List<String> tags;
 
     /**
+     * 题目提交总数
+     */
+    private Integer submitNum;
+
+    /**
      * 题目通过数
      */
-    private Integer passNum;
+    private Integer acceptNum;
 
     /**
      * 判题配置（json 对象）
