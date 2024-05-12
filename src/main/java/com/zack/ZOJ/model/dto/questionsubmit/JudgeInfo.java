@@ -13,7 +13,7 @@ public class JudgeInfo implements Serializable {
     /**
      * 程序执行信息
      */
-    private Long message;
+    private String message;
 
     /**
      * 消耗内存（KB）
@@ -21,7 +21,7 @@ public class JudgeInfo implements Serializable {
     private Long memory;
 
     /**
-     * 消耗时间（KB）
+     * 消耗时间（ms）
      */
     private Long time;
 }

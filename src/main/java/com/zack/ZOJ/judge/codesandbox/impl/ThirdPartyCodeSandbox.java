@@ -10,6 +10,7 @@ import com.zack.ZOJ.judge.codesandbox.model.ExecuteCodeResponse;
 public class ThirdPartyCodeSandbox implements CodeSandbox {
     @Override
     public ExecuteCodeResponse executeCode(ExecuteCodeRequest executeCodeRequest) {
+        System.out.println("ThirdPartyCodeSandbox");
         return null;
     }
 }

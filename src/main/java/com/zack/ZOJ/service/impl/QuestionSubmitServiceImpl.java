@@ -8,7 +8,7 @@ import com.zack.ZOJ.common.ErrorCode;
 import com.zack.ZOJ.constant.CommonConstant;
 import com.zack.ZOJ.exception.BusinessException;
 
-import com.zack.ZOJ.model.dto.question.QuestionAddRequest;
+import com.zack.ZOJ.judge.JudgeService;
 import com.zack.ZOJ.model.dto.questionsubmit.QuestionSubmitAddRequest;
 import com.zack.ZOJ.model.entity.Question;
 import com.zack.ZOJ.model.entity.QuestionSubmit;
@@ -16,7 +16,6 @@ import com.zack.ZOJ.model.entity.User;
 import com.zack.ZOJ.model.enums.QuestionSubmitEnum;
 import com.zack.ZOJ.model.enums.QuestionSubmitLanguageEnum;
 import com.zack.ZOJ.model.dto.questionsubmit.QuestionSubmitQueryRequest;
-import com.zack.ZOJ.model.enums.UserRoleEnum;
 import com.zack.ZOJ.model.vo.QuestionSubmitVO;
 import com.zack.ZOJ.model.vo.UserVO;
 import com.zack.ZOJ.service.QuestionService;
@@ -24,31 +23,33 @@ import com.zack.ZOJ.service.QuestionSubmitService;
 import com.zack.ZOJ.mapper.QuestionSubmitMapper;
 import com.zack.ZOJ.service.UserService;
 import com.zack.ZOJ.utils.SqlUtils;
-import lombok.val;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 /**
-* @author admin
-* @description 针对表【questionSubmit_submit(题目提交)】的数据库操作Service实现
-* @createDate 2024-03-29 10:21:55
-*/
+ * @author admin
+ * @description 针对表【questionSubmit_submit(题目提交)】的数据库操作Service实现
+ * @createDate 2024-03-29 10:21:55
+ */
 @Service
 public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper, QuestionSubmit>
-    implements QuestionSubmitService{
+        implements QuestionSubmitService {
     @Resource
     private QuestionService questionService;
 
     @Resource
     private UserService userService;
+
+    @Resource
+    @Lazy
+    private JudgeService judgeService;
 
     /**
      * 提交题目
@@ -61,8 +62,8 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
     public long doQuestionSubmit(QuestionSubmitAddRequest questionSubmitAddRequest, User loginUser) {
         // todo 语言是否合法
         String language = questionSubmitAddRequest.getLanguage();
-        QuestionSubmitLanguageEnum judgeResultEnum = QuestionSubmitLanguageEnum.getEnumByValue(language);
-        if (judgeResultEnum == null) {
+        QuestionSubmitLanguageEnum languageEnum = QuestionSubmitLanguageEnum.getEnumByValue(language);
+        if (languageEnum == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "编程语言错误");
         }
         long questionId = questionSubmitAddRequest.getQuestionId();
@@ -85,9 +86,14 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
         boolean save = this.save(questionSubmit);
 
         if (!save) {
-           throw new BusinessException(ErrorCode.SYSTEM_ERROR, "数据插入失败");
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "数据插入失败");
         }
-        return questionSubmit.getId();
+        // 执行判题服务
+        Long questionSubmitId = questionSubmit.getId();
+        CompletableFuture.runAsync(() -> {
+            judgeService.doJudge(questionSubmitId);
+        });
+        return questionSubmitId;
         // 每个用户串行提交题目
         // 锁必须要包裹住事务方法
 //        QuestionSubmitService questionSubmitService = (QuestionSubmitService) AopContext.currentProxy();
@@ -141,7 +147,7 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
         UserVO userVO = userService.getUserVO(user);
         questionSubmitVO.setUserVO(userVO);
 
-        if(userId != questionSubmitVO.getUserId() && !userService.isAdmin(loginUSer)) {
+        if (userId != questionSubmitVO.getUserId() && !userService.isAdmin(loginUSer)) {
             questionSubmitVO.setCode(null);
         }
         return questionSubmitVO;

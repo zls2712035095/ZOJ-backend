@@ -121,6 +121,72 @@ create table if not exists question_submit
     index idx_questionId (questionId),
     index idx_userId (userId)
 ) comment '题目提交';
+-- 题目信息表
+create table if not exists judgeinfo
+(
+    id         bigint auto_increment comment 'id' primary key,
+    message    text                      not null comment '程序执行信息',
+    memory      int                               not null comment '消耗内存（KB）',
+    times       int                               null comment '消耗时间（ms）',
+    status     int      default 0                 not null comment '判题状态（0 - 待判题、1 - 判题中、2 - 成功、3 - 失败）',
+    questionId bigint                             not null comment '题目 id',
+    userId     bigint                             not null comment '创建用户 id',
+    createTime datetime default CURRENT_TIMESTAMP not null comment '创建时间',
+    updateTime datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
+    isDelete   tinyint  default 0                 not null comment '是否删除',
+    index idx_questionId (questionId),
+    index idx_userId (userId)
+    ) comment '题目信息';
+-- 题目题解表
+create table if not exists questionanswer
+(
+    id         bigint auto_increment comment 'id' primary key,
+    language   varchar(128)                       not null comment '编程语言',
+    message    text                       not null comment '程序执行信息',
+    code       text                               not null comment '用户代码',
+    memory      int                               not null comment '消耗内存（KB）',
+    times       int                               not null comment '消耗时间（ms）',
+    questionId bigint                             not null comment '题目 id',
+    userId     bigint                             not null comment '创建用户 id',
+    createTime datetime default CURRENT_TIMESTAMP not null comment '创建时间',
+    updateTime datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
+    isDelete   tinyint  default 0                 not null comment '是否删除',
+    index idx_questionId (questionId),
+    index idx_userId (userId)
+) comment '题目的题解';
+-- 用户排行表
+create table if not exists userorder
+(
+    id           bigint auto_increment comment 'id' primary key,
+    unionId      varchar(256)                           null comment '微信开放平台id',
+    mpOpenId     varchar(256)                           null comment '公众号openId',
+    userName     varchar(256)                           null comment '用户昵称',
+    userAvatar   varchar(1024)                          null comment '用户头像',
+    userProfile  varchar(512)                           null comment '用户简介',
+    userRole     varchar(256) default 'user'            not null comment '用户角色：user/admin/ban',
+    userId      bigint                                  not null comment '用户 id',
+    acNum        int                                    not null comment '过题总数',
+    submitNum    int                                    not null comment '提交题目总数',
+    createTime   datetime     default CURRENT_TIMESTAMP not null comment '创建时间',
+    updateTime   datetime     default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
+    isDelete     tinyint      default 0                 not null comment '是否删除',
+    index idx_unionId (unionId)
+) comment '用户排行';
+-- 题目大用例表
+create table if not exists questionJudgeCase
+(
+    id          bigint auto_increment comment 'id' primary key,
+    judgeCase1   text                               null comment '判题用例（json 数组）',
+    judgeCase2   text                               null comment '判题用例（json 数组）',
+    judgeConfig text                               null comment '判题配置（json 对象）',
+    userId      bigint                             not null comment '用户 id',
+    questionId  bigint                             not null comment '题目 id',
+    createTime  datetime default CURRENT_TIMESTAMP not null comment '创建时间',
+    updateTime  datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
+    isDelete    tinyint  default 0                 not null comment '是否删除',
+    index idx_questionId (questionId),
+    index idx_userId (userId)
+) comment '题目大用例' collate = utf8mb4_unicode_ci;
 # 判题信息（判题过程中得到的一些信息，比如程序的失败原因、程序执行消耗的时间、空间）：
 # judgeInfo（json 对象）
 # {
