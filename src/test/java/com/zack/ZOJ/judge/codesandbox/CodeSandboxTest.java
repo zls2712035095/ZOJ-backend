@@ -1,5 +1,6 @@
 package com.zack.ZOJ.judge.codesandbox;
 
+import com.zack.ZOJ.judge.codesandbox.impl.ExampleCodeSandbox;
 import com.zack.ZOJ.judge.codesandbox.impl.RemoteCodeSandbox;
 import com.zack.ZOJ.judge.codesandbox.model.ExecuteCodeRequest;
 import com.zack.ZOJ.judge.codesandbox.model.ExecuteCodeResponse;
@@ -32,6 +33,7 @@ class CodeSandboxTest {
                 .inputList(inputList)
                 .build();
         ExecuteCodeResponse executeCodeResponse = codeSandbox.executeCode(executeCodeRequest);
+        System.out.println(executeCodeResponse);
         Assertions.assertNotNull(executeCodeResponse);
     }
 

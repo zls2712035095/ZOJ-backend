@@ -17,11 +17,13 @@ import com.zack.ZOJ.model.enums.QuestionSubmitEnum;
 import com.zack.ZOJ.service.QuestionService;
 import com.zack.ZOJ.service.QuestionSubmitService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Service
 public class JudgeServiceImpl implements JudgeService {
 
     @Resource

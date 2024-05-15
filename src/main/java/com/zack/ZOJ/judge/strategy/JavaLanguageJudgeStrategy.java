@@ -8,9 +8,10 @@ import com.zack.ZOJ.model.entity.Question;
 import com.zack.ZOJ.model.enums.JudgeResultEnum;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
- * 默认判题策略
+ * java判题策略
  */
 public class JavaLanguageJudgeStrategy implements JudgeStrategy{
 
@@ -22,28 +23,28 @@ public class JavaLanguageJudgeStrategy implements JudgeStrategy{
     @Override
     public JudgeInfo doJudge(JudgeContext judgeContext) {
         JudgeInfo judgeInfo = judgeContext.getJudgeInfo();
-        Long memory = judgeInfo.getMemory();
-        Long time = judgeInfo.getTime();
+        Long memory = Optional.ofNullable(judgeInfo.getMemory()).orElse(0L);
+        Long time = Optional.ofNullable(judgeInfo.getTime()).orElse(0L);
         List<String> inputList = judgeContext.getInputList();
         List<String> outputList = judgeContext.getOutputList();
         Question question = judgeContext.getQuestion();
         List<JudgeCase> judgeCaseList = judgeContext.getJudgeCaseList();
-        JudgeResultEnum judgeResultEnum = JudgeResultEnum.Accepted;
+        JudgeResultEnum judgeInfoMessageEnum = JudgeResultEnum.Accepted;
         JudgeInfo judgeInfoResponse = new JudgeInfo();
         judgeInfoResponse.setMemory(memory);
         judgeInfoResponse.setTime(time);
         // 先判断沙箱执行的结果输出数量是否和预期输出数量相等
         if (outputList.size() != inputList.size()) {
-            judgeResultEnum = JudgeResultEnum.WrongAnswer;
-            judgeInfoResponse.setMessage(judgeResultEnum.getValue());
+            judgeInfoMessageEnum = JudgeResultEnum.WrongAnswer;
+            judgeInfoResponse.setMessage(judgeInfoMessageEnum.getValue());
             return judgeInfoResponse;
         }
         // 依次判断每一项输出和预期输出是否相等
         for (int i = 0; i < judgeCaseList.size(); i++) {
             JudgeCase judgeCase = judgeCaseList.get(i);
             if (!judgeCase.getOutput().equals(outputList.get(i))) {
-                judgeResultEnum = JudgeResultEnum.WrongAnswer;
-                judgeInfoResponse.setMessage(judgeResultEnum.getValue());
+                judgeInfoMessageEnum = JudgeResultEnum.WrongAnswer;
+                judgeInfoResponse.setMessage(judgeInfoMessageEnum.getValue());
                 return judgeInfoResponse;
             }
         }
@@ -53,16 +54,18 @@ public class JavaLanguageJudgeStrategy implements JudgeStrategy{
         Long needMemoryLimit = judgeConfig.getMemoryLimit();
         Long needTimeLimit = judgeConfig.getTimeLimit();
         if (memory > needMemoryLimit) {
-            judgeResultEnum = JudgeResultEnum.MemoryLimitExceeded;
-            judgeInfoResponse.setMessage(judgeResultEnum.getValue());
+            judgeInfoMessageEnum = JudgeResultEnum.MemoryLimitExceeded;
+            judgeInfoResponse.setMessage(judgeInfoMessageEnum.getValue());
             return judgeInfoResponse;
         }
-        if (time > needTimeLimit) {
-            judgeResultEnum = JudgeResultEnum.TimeLimitExceeded;
-            judgeInfoResponse.setMessage(judgeResultEnum.getValue());
+        // Java 程序本身需要额外执行 10 秒钟
+        long JAVA_PROGRAM_TIME_COST = 10000L;
+        if ((time - JAVA_PROGRAM_TIME_COST) > needTimeLimit) {
+            judgeInfoMessageEnum = JudgeResultEnum.TimeLimitExceeded;
+            judgeInfoResponse.setMessage(judgeInfoMessageEnum.getValue());
             return judgeInfoResponse;
         }
-        judgeInfoResponse.setMessage(judgeResultEnum.getValue());
+        judgeInfoResponse.setMessage(judgeInfoMessageEnum.getValue());
         return judgeInfoResponse;
     }
 }

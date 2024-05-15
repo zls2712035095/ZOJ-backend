@@ -6,12 +6,14 @@ import com.zack.ZOJ.judge.codesandbox.model.ExecuteCodeResponse;
 import com.zack.ZOJ.model.dto.questionsubmit.JudgeInfo;
 import com.zack.ZOJ.model.enums.JudgeResultEnum;
 import com.zack.ZOJ.model.enums.QuestionSubmitEnum;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
 /**
  * 示例代码沙箱（示例）
  */
+@Slf4j
 public class ExampleCodeSandbox implements CodeSandbox {
     @Override
     public ExecuteCodeResponse executeCode(ExecuteCodeRequest executeCodeRequest) {

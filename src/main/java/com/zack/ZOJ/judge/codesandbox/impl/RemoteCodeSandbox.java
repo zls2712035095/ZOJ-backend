@@ -10,7 +10,7 @@ import com.zack.ZOJ.judge.codesandbox.model.ExecuteCodeResponse;
 public class RemoteCodeSandbox implements CodeSandbox {
     @Override
     public ExecuteCodeResponse executeCode(ExecuteCodeRequest executeCodeRequest) {
-        System.out.println("RemoteCodeSandbox");
+        System.out.println("远程代码沙箱");
         return null;
     }
 }

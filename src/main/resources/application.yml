@@ -102,4 +102,4 @@ knife4j:
           - com.zack.ZOJ.controller
 # 代码沙箱配置
 codesandbox:
-  type: remote
+  type: example
