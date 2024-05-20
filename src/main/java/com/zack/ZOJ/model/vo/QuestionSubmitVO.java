@@ -1,22 +1,13 @@
 package com.zack.ZOJ.model.vo;
 
 import cn.hutool.json.JSONUtil;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableLogic;
-import com.zack.ZOJ.model.dto.question.JudgeConfig;
-import com.zack.ZOJ.model.dto.questionsubmit.JudgeInfo;
-import com.zack.ZOJ.model.entity.Question;
+import com.zack.ZOJ.judge.codesandbox.model.JudgeInfo;
 import com.zack.ZOJ.model.entity.QuestionSubmit;
-import com.zack.ZOJ.model.entity.User;
 import lombok.Data;
-import lombok.val;
 import org.springframework.beans.BeanUtils;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
 
 /**
  * 题目提交封装类

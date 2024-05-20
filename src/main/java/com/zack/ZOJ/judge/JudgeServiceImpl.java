@@ -10,7 +10,7 @@ import com.zack.ZOJ.judge.codesandbox.model.ExecuteCodeRequest;
 import com.zack.ZOJ.judge.codesandbox.model.ExecuteCodeResponse;
 import com.zack.ZOJ.judge.strategy.JudgeContext;
 import com.zack.ZOJ.model.dto.question.JudgeCase;
-import com.zack.ZOJ.model.dto.questionsubmit.JudgeInfo;
+import com.zack.ZOJ.judge.codesandbox.model.JudgeInfo;
 import com.zack.ZOJ.model.entity.Question;
 import com.zack.ZOJ.model.entity.QuestionSubmit;
 import com.zack.ZOJ.model.enums.QuestionSubmitEnum;

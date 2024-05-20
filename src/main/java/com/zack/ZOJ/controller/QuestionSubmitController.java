@@ -25,8 +25,9 @@ import javax.servlet.http.HttpServletRequest;
  * 题目提交接口
  */
 @RestController
-@RequestMapping("/question_submit")
+//@RequestMapping("/question_submit")
 @Slf4j
+@Deprecated
 public class QuestionSubmitController {
 
     @Resource
@@ -35,34 +36,34 @@ public class QuestionSubmitController {
     @Resource
     private UserService userService;
 
-    /**
-     * 提交 / 取消提交
-     *
-     * @param questionSubmitAddRequest
-     * @param request
-     * @return resultNum 本次提交变化数
-     */
-    @PostMapping("/")
-    public BaseResponse<Long> doQuestionSubmit(@RequestBody QuestionSubmitAddRequest questionSubmitAddRequest,
-            HttpServletRequest request) {
-        if (questionSubmitAddRequest == null || questionSubmitAddRequest.getQuestionId() <= 0) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
-        // 登录才能提交
-        final User loginUser = userService.getLoginUser(request);
-        long result = questionSubmitService.doQuestionSubmit(questionSubmitAddRequest, loginUser);
-        return ResultUtils.success(result);
-    }
-
-
-    @PostMapping("list/page")
-    public BaseResponse<Page<QuestionSubmitVO>> listQuestionSubmitByPage(@RequestBody QuestionSubmitQueryRequest questionSubmitQueryRequest, HttpServletRequest request) {
-        long current = questionSubmitQueryRequest.getCurrent();
-        long size = questionSubmitQueryRequest.getPageSize();
-
-        Page<QuestionSubmit> questionSubmitPage = questionSubmitService.page(new Page<>(current, size), questionSubmitService.getQueryWrapper(questionSubmitQueryRequest));
-        final User loginUser = userService.getLoginUser(request);
-        return ResultUtils.success(questionSubmitService.getQuestionSubmitVOPage(questionSubmitPage, loginUser));
-    }
+//    /**
+//     * 提交 / 取消提交
+//     *
+//     * @param questionSubmitAddRequest
+//     * @param request
+//     * @return resultNum 本次提交变化数
+//     */
+//    @PostMapping("/")
+//    public BaseResponse<Long> doQuestionSubmit(@RequestBody QuestionSubmitAddRequest questionSubmitAddRequest,
+//            HttpServletRequest request) {
+//        if (questionSubmitAddRequest == null || questionSubmitAddRequest.getQuestionId() <= 0) {
+//            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+//        }
+//        // 登录才能提交
+//        final User loginUser = userService.getLoginUser(request);
+//        long result = questionSubmitService.doQuestionSubmit(questionSubmitAddRequest, loginUser);
+//        return ResultUtils.success(result);
+//    }
+//
+//
+//    @PostMapping("list/page")
+//    public BaseResponse<Page<QuestionSubmitVO>> listQuestionSubmitByPage(@RequestBody QuestionSubmitQueryRequest questionSubmitQueryRequest, HttpServletRequest request) {
+//        long current = questionSubmitQueryRequest.getCurrent();
+//        long size = questionSubmitQueryRequest.getPageSize();
+//
+//        Page<QuestionSubmit> questionSubmitPage = questionSubmitService.page(new Page<>(current, size), questionSubmitService.getQueryWrapper(questionSubmitQueryRequest));
+//        final User loginUser = userService.getLoginUser(request);
+//        return ResultUtils.success(questionSubmitService.getQuestionSubmitVOPage(questionSubmitPage, loginUser));
+//    }
 
 }

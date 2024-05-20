@@ -1,6 +1,6 @@
 package com.zack.ZOJ.judge.strategy;
 
-import com.zack.ZOJ.model.dto.questionsubmit.JudgeInfo;
+import com.zack.ZOJ.judge.codesandbox.model.JudgeInfo;
 
 /**
  * 判题策略
