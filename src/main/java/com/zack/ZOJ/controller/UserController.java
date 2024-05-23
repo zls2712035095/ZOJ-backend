@@ -72,10 +72,11 @@ public class UserController {
         String userAccount = userRegisterRequest.getUserAccount();
         String userPassword = userRegisterRequest.getUserPassword();
         String checkPassword = userRegisterRequest.getCheckPassword();
-        if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword)) {
+        String userName = userRegisterRequest.getUserName();
+        if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword, userName)) {
             return null;
         }
-        long result = userService.userRegister(userAccount, userPassword, checkPassword);
+        long result = userService.userRegister(userAccount, userPassword, checkPassword, userName);
         return ResultUtils.success(result);
     }
 
@@ -209,6 +210,11 @@ public class UserController {
         if (userUpdateRequest == null || userUpdateRequest.getId() == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
+        String newPwd = userUpdateRequest.getUserPassword();
+        if (newPwd != null) {
+            String encryptPassword = DigestUtils.md5DigestAsHex((SALT + newPwd).getBytes());
+            userUpdateRequest.setUserPassword(encryptPassword);
+        }
         User user = new User();
         BeanUtils.copyProperties(userUpdateRequest, user);
         boolean result = userService.updateById(user);
@@ -308,8 +314,19 @@ public class UserController {
         }
         User loginUser = userService.getLoginUser(request);
         User user = new User();
-        BeanUtils.copyProperties(userUpdateMyRequest, user);
         user.setId(loginUser.getId());
+        String userName = userUpdateMyRequest.getUserName();
+        String userAvatar = userUpdateMyRequest.getUserAvatar();
+        String userProfile = userUpdateMyRequest.getUserProfile();
+        String newPwd = userUpdateMyRequest.getUserPassword();
+        if (newPwd != null) {
+            String encryptPassword = DigestUtils.md5DigestAsHex((SALT + newPwd).getBytes());
+            user.setUserPassword(encryptPassword);
+        }
+        user.setUserName(userName);
+        user.setUserAvatar(userAvatar);
+        user.setUserProfile(userProfile);
+        System.out.println(newPwd);
         boolean result = userService.updateById(user);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         return ResultUtils.success(true);

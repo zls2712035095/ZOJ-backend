@@ -4,20 +4,25 @@ import static com.zack.ZOJ.constant.UserConstant.USER_LOGIN_STATE;
 
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zack.ZOJ.common.ErrorCode;
 import com.zack.ZOJ.constant.CommonConstant;
 import com.zack.ZOJ.exception.BusinessException;
 import com.zack.ZOJ.mapper.UserMapper;
 import com.zack.ZOJ.model.dto.user.UserQueryRequest;
+import com.zack.ZOJ.model.entity.Question;
 import com.zack.ZOJ.model.entity.User;
 import com.zack.ZOJ.model.enums.UserRoleEnum;
 import com.zack.ZOJ.model.vo.LoginUserVO;
+import com.zack.ZOJ.model.vo.QuestionVO;
 import com.zack.ZOJ.model.vo.UserVO;
 import com.zack.ZOJ.service.UserService;
 import com.zack.ZOJ.utils.SqlUtils;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -40,9 +45,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public static final String SALT = "zack";
 
     @Override
-    public long userRegister(String userAccount, String userPassword, String checkPassword) {
+    public long userRegister(String userAccount, String userPassword, String checkPassword, String userName) {
         // 1. 校验
-        if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword)) {
+        if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword, userName)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数为空");
         }
         if (userAccount.length() < 4) {
@@ -67,6 +72,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             String encryptPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
             // 3. 插入数据
             User user = new User();
+            user.setUserName(userName);
             user.setUserAccount(userAccount);
             user.setUserPassword(encryptPassword);
             boolean saveResult = this.save(user);

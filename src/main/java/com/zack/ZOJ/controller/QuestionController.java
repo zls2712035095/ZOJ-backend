@@ -13,13 +13,16 @@ import com.zack.ZOJ.exception.ThrowUtils;
 import com.zack.ZOJ.model.dto.question.*;
 import com.zack.ZOJ.model.dto.questionsubmit.QuestionSubmitAddRequest;
 import com.zack.ZOJ.model.dto.questionsubmit.QuestionSubmitQueryRequest;
+import com.zack.ZOJ.model.dto.userrank.UserRankQueryRequest;
 import com.zack.ZOJ.model.entity.Question;
 import com.zack.ZOJ.model.entity.QuestionSubmit;
 import com.zack.ZOJ.model.entity.User;
+import com.zack.ZOJ.model.entity.UserRank;
 import com.zack.ZOJ.model.vo.QuestionSubmitVO;
 import com.zack.ZOJ.model.vo.QuestionVO;
 import com.zack.ZOJ.service.QuestionService;
 import com.zack.ZOJ.service.QuestionSubmitService;
+import com.zack.ZOJ.service.UserRankService;
 import com.zack.ZOJ.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -42,6 +45,9 @@ public class QuestionController {
 
     @Resource
     private UserService userService;
+
+    @Resource
+    private UserRankService userRankService;
 
 
     /**
@@ -334,5 +340,65 @@ public class QuestionController {
         Page<QuestionSubmit> questionSubmitPage = questionSubmitService.page(new Page<>(current, size), questionSubmitService.getQueryWrapper(questionSubmitQueryRequest));
         final User loginUser = userService.getLoginUser(request);
         return ResultUtils.success(questionSubmitService.getQuestionSubmitVOPage(questionSubmitPage, loginUser));
+    }
+
+    /**
+     * 根据 id 获取questionSubmit
+     *
+     * @param id
+     * @return
+     */
+    @GetMapping("/question_submit/get")
+    public BaseResponse<QuestionSubmit> getQuestionSubmitById(long id, HttpServletRequest request) {
+        if (id <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        QuestionSubmit questionSubmit = questionSubmitService.getById(id);
+        if (questionSubmit == null) {
+            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
+        }
+        System.out.println("查看记录"+userService.getLoginUser(request));
+        return ResultUtils.success(questionSubmit);
+    }
+    /**
+     * 根据 id 获取（脱敏）
+     *
+     * @param id
+     * @return
+     */
+    @GetMapping("/question_submit/get/vo")
+    public BaseResponse<QuestionSubmitVO> getQuestionSubmitVOById(long id, HttpServletRequest request) {
+        if (id <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        QuestionSubmit questionSubmit = questionSubmitService.getById(id);
+        if (questionSubmit == null) {
+            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
+        }
+        User loginUser = userService.getLoginUser(request);
+        return ResultUtils.success(questionSubmitService.getQuestionSubmitVO(questionSubmit, loginUser));
+    }
+
+    /**
+     * 根据 userId 获取排行信息
+     *
+     * @return
+     */
+    @GetMapping("/userrank/get")
+    public BaseResponse<UserRank> getUserRank(HttpServletRequest request) {
+        UserRank userRank = userRankService.getUserRank(request);
+        if (userRank == null) {
+            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
+        }
+        return ResultUtils.success(userRank);
+    }
+
+    @PostMapping("/userrank/list/page")
+    public BaseResponse<Page<UserRank>> listUserRankByPage(@RequestBody UserRankQueryRequest userRankQueryRequest, HttpServletRequest request) {
+        long current = userRankQueryRequest.getCurrent();
+        long size = userRankQueryRequest.getPageSize();
+
+        Page<UserRank> userRankPage = userRankService.page(new Page<>(current, size), userRankService.getQueryWrapper(userRankQueryRequest));
+        return ResultUtils.success(userRankPage);
     }
 }

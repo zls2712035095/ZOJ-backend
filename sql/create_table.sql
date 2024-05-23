@@ -81,6 +81,25 @@ create table if not exists comments
     index idx_userId (userId),
     index idx_questionId(questionId)
 ) comment '帖子' collate = utf8mb4_unicode_ci;
+-- 评论表
+create table if not exists comment
+(
+    id         bigint auto_increment comment 'id' primary key,
+    content    text                               null comment '内容',
+    thumbNum   int      default 0                 not null comment '点赞数',
+    favourNum  int      default 0                 not null comment '收藏数',
+    userId     bigint                             not null comment '创建用户id',
+    userName   varchar(256)                           null comment '用户昵称',
+    foreignId bigint                             not null comment '模块id',
+    pid        bigint                             null     comment '父级评论id',
+    target     varchar(256)                       null comment '回复对象',
+    createTime datetime default CURRENT_TIMESTAMP not null comment '创建时间',
+    updateTime datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
+    isDelete   tinyint  default 0                 not null comment '是否删除',
+    index idx_postId (foreignId),
+    index idx_userId (userId),
+    index idx_questionId(pid)
+) comment '评论' collate = utf8mb4_unicode_ci;
 -- 题目表
 create table if not exists question
 (
@@ -101,6 +120,24 @@ create table if not exists question
     isDelete    tinyint  default 0                 not null comment '是否删除',
     index idx_userId (userId)
 ) comment '题目' collate = utf8mb4_unicode_ci;
+
+-- 题单表
+create table if not exists question_list
+(
+    id          bigint auto_increment comment 'id' primary key,
+    title       varchar(512)                       null comment '题单标题',
+    content     text                               null comment '题单内容',
+    tags        varchar(1024)                      null comment '题单标签列表（json 数组）',
+    questionCase   text                            null comment '题目用例（json 数组）',
+    thumbNum    int      default 0                 not null comment '点赞数',
+    favourNum   int      default 0                 not null comment '收藏数',
+    userId      bigint                             not null comment '创建用户 id',
+    createTime  datetime default CURRENT_TIMESTAMP not null comment '创建时间',
+    activeTime  datetime default CURRENT_TIMESTAMP not null comment '持续时间',
+    updateTime  datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
+    isDelete    tinyint  default 0                 not null comment '是否删除',
+    index idx_userId (userId)
+) comment '题单' collate = utf8mb4_unicode_ci;
 # judgeCase 判题用例（json 数组）
 # 每一个元素是：一个输入用例对应一个输出用例
 # [
@@ -172,22 +209,18 @@ create table if not exists questionanswer
     index idx_userId (userId)
 ) comment '题目的题解';
 -- 用户排行表
-create table if not exists userorder
+create table if not exists user_rank
 (
     id           bigint auto_increment comment 'id' primary key,
-    unionId      varchar(256)                           null comment '微信开放平台id',
-    mpOpenId     varchar(256)                           null comment '公众号openId',
+    userId       bigint                             not null comment '用户 id',
     userName     varchar(256)                           null comment '用户昵称',
     userAvatar   varchar(1024)                          null comment '用户头像',
     userProfile  varchar(512)                           null comment '用户简介',
-    userRole     varchar(256) default 'user'            not null comment '用户角色：user/admin/ban',
-    userId      bigint                                  not null comment '用户 id',
     acNum        int                                    not null comment '过题总数',
     submitNum    int                                    not null comment '提交题目总数',
     createTime   datetime     default CURRENT_TIMESTAMP not null comment '创建时间',
     updateTime   datetime     default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
-    isDelete     tinyint      default 0                 not null comment '是否删除',
-    index idx_unionId (unionId)
+    isDelete     tinyint      default 0                 not null comment '是否删除'
 ) comment '用户排行';
 -- 题目大用例表
 create table if not exists questionJudgeCase

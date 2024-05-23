@@ -1,10 +1,13 @@
 package com.zack.ZOJ.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zack.ZOJ.model.dto.user.UserQueryRequest;
+import com.zack.ZOJ.model.entity.Question;
 import com.zack.ZOJ.model.entity.User;
 import com.zack.ZOJ.model.vo.LoginUserVO;
+import com.zack.ZOJ.model.vo.QuestionVO;
 import com.zack.ZOJ.model.vo.UserVO;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
@@ -21,9 +24,10 @@ public interface UserService extends IService<User> {
      * @param userAccount   用户账户
      * @param userPassword  用户密码
      * @param checkPassword 校验密码
+     * @param userName 用户名称
      * @return 新用户 id
      */
-    long userRegister(String userAccount, String userPassword, String checkPassword);
+    long userRegister(String userAccount, String userPassword, String checkPassword, String userName);
 
     /**
      * 用户登录

@@ -1,6 +1,7 @@
 package com.zack.ZOJ.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -9,18 +10,22 @@ import com.zack.ZOJ.constant.CommonConstant;
 import com.zack.ZOJ.exception.BusinessException;
 
 import com.zack.ZOJ.judge.JudgeService;
+import com.zack.ZOJ.judge.codesandbox.model.JudgeInfo;
 import com.zack.ZOJ.model.dto.questionsubmit.QuestionSubmitAddRequest;
 import com.zack.ZOJ.model.entity.Question;
 import com.zack.ZOJ.model.entity.QuestionSubmit;
 import com.zack.ZOJ.model.entity.User;
+import com.zack.ZOJ.model.entity.UserRank;
 import com.zack.ZOJ.model.enums.QuestionSubmitEnum;
 import com.zack.ZOJ.model.enums.QuestionSubmitLanguageEnum;
 import com.zack.ZOJ.model.dto.questionsubmit.QuestionSubmitQueryRequest;
 import com.zack.ZOJ.model.vo.QuestionSubmitVO;
+import com.zack.ZOJ.model.vo.QuestionVO;
 import com.zack.ZOJ.model.vo.UserVO;
 import com.zack.ZOJ.service.QuestionService;
 import com.zack.ZOJ.service.QuestionSubmitService;
 import com.zack.ZOJ.mapper.QuestionSubmitMapper;
+import com.zack.ZOJ.service.UserRankService;
 import com.zack.ZOJ.service.UserService;
 import com.zack.ZOJ.utils.SqlUtils;
 import org.apache.commons.lang3.ObjectUtils;
@@ -50,6 +55,9 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
     @Resource
     @Lazy
     private JudgeService judgeService;
+
+    @Resource
+    private UserRankService userRankService;
 
     /**
      * 提交题目
@@ -88,10 +96,26 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
         if (!save) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "数据插入失败");
         }
+        // 增加用户提交数
+        long userRankId = userRankService.getUserRankIdByUserId(userId);
+        UserRank userRank = new UserRank();
+        userRank.setId(userRankId);
+        userRank.setSubmitNum(userRankService.getUserRankSubmitNum(userId) + 1);
+        userRankService.updateById(userRank);
         // 执行判题服务
         Long questionSubmitId = questionSubmit.getId();
         CompletableFuture.runAsync(() -> {
             judgeService.doJudge(questionSubmitId);
+            QuestionSubmit questionSubmit1 = getById(questionSubmitId);
+            JudgeInfo judgeInfo = JSONUtil.toBean(questionSubmit1.getJudgeInfo(), JudgeInfo.class);
+            if ("Accepted".equals(judgeInfo.getMessage())) {
+                // 增加用户Ac数
+
+                UserRank acUpdateUserRank = new UserRank();
+                acUpdateUserRank.setId(userRankService.getUserRankIdByUserId(userId));
+                acUpdateUserRank.setAcNum(userRankService.getUserRankAcNum(userId) + 1);
+                userRankService.updateById(acUpdateUserRank);
+            }
         });
         return questionSubmitId;
         // 每个用户串行提交题目
@@ -125,7 +149,7 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
         // 拼接查询条件
         queryWrapper.like(StringUtils.isNotBlank(language), "language", language);
         queryWrapper.like(QuestionSubmitEnum.getEnumByValue(status) != null, "status", status);
-        queryWrapper.eq(ObjectUtils.isNotEmpty(questionId), "questionSubmitId", questionId);
+        queryWrapper.eq(ObjectUtils.isNotEmpty(questionId), "questionId", questionId);
         queryWrapper.eq(ObjectUtils.isNotEmpty(userId), "userId", userId);
         queryWrapper.eq("isDelete", false);
 
@@ -146,7 +170,14 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
         }
         UserVO userVO = userService.getUserVO(user);
         questionSubmitVO.setUserVO(userVO);
-
+        // 2. 查看questionVo信息
+        long questionId = questionSubmit.getQuestionId();
+        Question question = null;
+        if (questionId > 0) {
+            question = questionService.getById(questionId);
+        }
+        QuestionVO questionVO = QuestionVO.objToVo(question);
+        questionSubmitVO.setQuestionVO(questionVO);
         if (userId != questionSubmitVO.getUserId() && !userService.isAdmin(loginUSer)) {
             questionSubmitVO.setCode(null);
         }
@@ -161,7 +192,9 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
             return questionSubmitVOPage;
         }
 
-        List<QuestionSubmitVO> questionSubmitVOList = questionSubmitList.stream().map(questionSubmit -> getQuestionSubmitVO(questionSubmit, loginUSer)).collect(Collectors.toList());
+        List<QuestionSubmitVO> questionSubmitVOList = questionSubmitList.stream()
+                .map(questionSubmit -> getQuestionSubmitVO(questionSubmit, loginUSer))
+                .collect(Collectors.toList());
 
         questionSubmitVOPage.setRecords(questionSubmitVOList);
         return questionSubmitVOPage;

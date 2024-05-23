@@ -67,6 +67,11 @@ public class QuestionVO implements Serializable {
     private Integer favourNum;
 
     /**
+     * 题目答案
+     */
+    private String answer;
+
+    /**
      * 创建用户 id
      */
     private Long userId;

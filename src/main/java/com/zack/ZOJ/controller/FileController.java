@@ -10,11 +10,10 @@ import com.zack.ZOJ.manager.CosManager;
 import com.zack.ZOJ.model.dto.file.UploadFileRequest;
 import com.zack.ZOJ.model.entity.User;
 import com.zack.ZOJ.model.enums.FileUploadBizEnum;
+import com.zack.ZOJ.service.FileService;
 import com.zack.ZOJ.service.UserService;
-import java.io.File;
-import java.util.Arrays;
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,13 +22,34 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import java.io.File;
+import java.util.Arrays;
+
 /**
  * 文件接口
  */
 @RestController
 @RequestMapping("/file")
+@Api(tags = "file")
 @Slf4j
 public class FileController {
+//    @Resource
+//    private FileService fileService;
+//
+//
+//    @PostMapping("/upload")
+//    @ApiOperation("上传文件")
+//    public BaseResponse<String> upload(@RequestPart MultipartFile file) {
+//        return ResultUtils.success(fileService.fileUpload(file));
+//    }
+//
+//    @PostMapping("/tmp")
+//    @ApiOperation("获取临时文件访问链接")
+//    public BaseResponse<String> getTempAccess(String key) {
+//        return ResultUtils.success(fileService.getTmpAccess(key));
+//    }
 
     @Resource
     private UserService userService;
