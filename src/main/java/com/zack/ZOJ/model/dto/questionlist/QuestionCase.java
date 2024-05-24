@@ -11,5 +11,8 @@ import java.io.Serializable;
 @Data
 public class QuestionCase implements Serializable {
 
-    private Question question;
+    /**
+     * 输入用例
+     */
+    private Long input;
 }

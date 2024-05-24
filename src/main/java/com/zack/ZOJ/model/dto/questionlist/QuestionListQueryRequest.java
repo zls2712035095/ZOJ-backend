@@ -35,10 +35,6 @@ public class QuestionListQueryRequest extends PageRequest implements Serializabl
      */
     private List<String> tags;
 
-    /**
-     * 题目用例（json 数组）
-     */
-    private List<Question> questionCase;
 
     /**
      * 创建用户 id

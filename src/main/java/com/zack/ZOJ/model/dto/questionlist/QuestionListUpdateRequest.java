@@ -36,7 +36,7 @@ public class QuestionListUpdateRequest implements Serializable {
     /**
      * 题目用例（json 数组）
      */
-    private List<Long> questionCase;
+    private List<QuestionCase> questionCase;
 
     private static final long serialVersionUID = 1L;
 }

@@ -35,7 +35,7 @@ public class QuestionListEditRequest implements Serializable {
     /**
      * 判题用例（json 数组）
      */
-    private List<Long> questionCase;
+    private List<QuestionCase> questionCase;
 
 
     private static final long serialVersionUID = 1L;

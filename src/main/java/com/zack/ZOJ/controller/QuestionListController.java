@@ -70,8 +70,8 @@ public class QuestionListController {
         if (tags != null) {
             questionList.setTags(JSONUtil.toJsonStr(tags));
         }
-        List<Long> questionsId = questionListAddRequest.getQuestionCase();
-        List<Question> questionCases = questionsId.stream().map(questionId -> questionService.getById(questionId)).collect(Collectors.toList());
+        List<QuestionCase> questionsId = questionListAddRequest.getQuestionCase();
+        List<Question> questionCases = questionsId.stream().map(questionId -> questionService.getById(questionId.getInput())).collect(Collectors.toList());
         if (questionCases != null) {
             questionList.setQuestionCase(JSONUtil.toJsonStr(questionCases));
         }
@@ -129,8 +129,8 @@ public class QuestionListController {
         if (tags != null) {
             questionList.setTags(JSONUtil.toJsonStr(tags));
         }
-        List<Long> questionsId = questionListUpdateRequest.getQuestionCase();
-        List<Question> questionCases = questionsId.stream().map(questionId -> questionService.getById(questionId)).collect(Collectors.toList());
+        List<QuestionCase> questionsId = questionListUpdateRequest.getQuestionCase();
+        List<Question> questionCases = questionsId.stream().map(questionId -> questionService.getById(questionId.getInput())).collect(Collectors.toList());
         if (questionCases != null) {
             questionList.setQuestionCase(JSONUtil.toJsonStr(questionCases));
         }
@@ -169,7 +169,7 @@ public class QuestionListController {
      * @return
      */
     @GetMapping("/get")
-    public BaseResponse<QuestionList> getQuestionListById(long id, HttpServletRequest request) {
+    public BaseResponse<QuestionListUpdateRequest> getQuestionListById(long id, HttpServletRequest request) {
         if (id <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -182,7 +182,16 @@ public class QuestionListController {
         if(!questionList.getUserId().equals(loginUser.getId()) && !userService.isAdmin(loginUser)) {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }
-        return ResultUtils.success(questionList);
+        QuestionListVO questionListVO = questionListService.getQuestionListVO(questionList, request);
+        QuestionListUpdateRequest questionListUpdateRequest = new QuestionListUpdateRequest();
+        BeanUtils.copyProperties(questionListVO, questionListUpdateRequest);
+        List<QuestionCase> list = questionListVO.getQuestionCase().stream().map(question -> {
+            QuestionCase questionCase = new QuestionCase();
+            questionCase.setInput(question.getId());
+            return questionCase;
+        }).collect(Collectors.toList());
+        questionListUpdateRequest.setQuestionCase(list);
+        return ResultUtils.success(questionListUpdateRequest);
     }
     /**
      * 分页获取列表（仅管理员）
@@ -280,8 +289,8 @@ public class QuestionListController {
         if (tags != null) {
             questionList.setTags(JSONUtil.toJsonStr(tags));
         }
-        List<Long> questionsId = questionListEditRequest.getQuestionCase();
-        List<Question> questionCases = questionsId.stream().map(questionId -> questionService.getById(questionId)).collect(Collectors.toList());
+        List<QuestionCase> questionsId = questionListEditRequest.getQuestionCase();
+        List<Question> questionCases = questionsId.stream().map(questionId -> questionService.getById(questionId.getInput())).collect(Collectors.toList());
         if (questionCases != null) {
             questionList.setQuestionCase(JSONUtil.toJsonStr(questionCases));
         }
