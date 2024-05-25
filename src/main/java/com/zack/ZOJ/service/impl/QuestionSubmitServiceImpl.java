@@ -80,6 +80,8 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
         if (question == null) {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
         }
+        question.setSubmitNum(question.getSubmitNum() + 1);
+        questionService.updateById(question);
         // 是否已提交题目
         long userId = loginUser.getId();
         //提交题目
@@ -92,7 +94,6 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
         questionSubmit.setStatus(QuestionSubmitEnum.WATITING.getValue());
         questionSubmit.setJudgeInfo("{}");
         boolean save = this.save(questionSubmit);
-
         if (!save) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "数据插入失败");
         }
@@ -110,11 +111,12 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
             JudgeInfo judgeInfo = JSONUtil.toBean(questionSubmit1.getJudgeInfo(), JudgeInfo.class);
             if ("Accepted".equals(judgeInfo.getMessage())) {
                 // 增加用户Ac数
-
                 UserRank acUpdateUserRank = new UserRank();
                 acUpdateUserRank.setId(userRankService.getUserRankIdByUserId(userId));
                 acUpdateUserRank.setAcNum(userRankService.getUserRankAcNum(userId) + 1);
                 userRankService.updateById(acUpdateUserRank);
+                question.setAcceptNum(question.getAcceptNum() + 1);
+                // 增加题目Ac数
             }
         });
         return questionSubmitId;
